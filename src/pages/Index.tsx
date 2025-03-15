@@ -4,36 +4,31 @@ import { SplashScreen } from '@/components/SplashScreen';
 import { AuthScreen } from '@/components/AuthScreen';
 import { Dashboard } from '@/components/Dashboard';
 import { MainLayout } from '@/layouts/MainLayout';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
   const [showSplash, setShowSplash] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated, user } = useAuth();
 
-  // For demo purposes, after splash screen, show auth screen
-  // In a real app, you would check if the user is already authenticated
-  const handleSplashFinished = () => {
-    setShowSplash(false);
-    
-    // For demo purposes only - auto login after 10 seconds if not authenticated
-    if (!isAuthenticated) {
-      setTimeout(() => {
-        setIsAuthenticated(true);
-      }, 10000);
-    }
-  };
-
-  // Skip splash screen on subsequent visits (demo)
+  // For demo purposes, show splash screen only on first visit
   useEffect(() => {
     const hasVisited = sessionStorage.getItem('hasVisited');
     if (hasVisited) {
       setShowSplash(false);
     } else {
       sessionStorage.setItem('hasVisited', 'true');
+      
+      // Hide splash screen after 2.5 seconds
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+      }, 2500);
+      
+      return () => clearTimeout(timer);
     }
   }, []);
 
   if (showSplash) {
-    return <SplashScreen onFinished={handleSplashFinished} />;
+    return <SplashScreen onFinished={() => setShowSplash(false)} />;
   }
 
   if (!isAuthenticated) {
@@ -42,7 +37,7 @@ const Index = () => {
 
   return (
     <MainLayout>
-      <Dashboard userName="Maria" />
+      <Dashboard userName={user?.name?.split(' ')[0] || 'Usuário'} />
     </MainLayout>
   );
 };

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -8,6 +8,8 @@ import {
   CardHeader,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   Camera,
   Edit2,
@@ -17,21 +19,30 @@ import {
   Star,
   Bookmark,
   CreditCard,
-  Bell
+  Bell,
+  Calendar,
+  Users,
+  Scissors,
+  BarChart
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 interface ProfileSectionProps {
-  user: {
-    name: string;
-    email: string;
-    avatar?: string;
-  };
   className?: string;
 }
 
-export function ProfileSection({ user, className }: ProfileSectionProps) {
-  const menuItems = [
+export function ProfileSection({ className }: ProfileSectionProps) {
+  const { user, logout } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [isEditing, setIsEditing] = useState(false);
+
+  if (!user) return null;
+
+  const isSalon = user.role === 'salon';
+
+  const clientMenuItems = [
     { icon: User, label: 'Dados pessoais' },
     { icon: Bookmark, label: 'Meus agendamentos' },
     { icon: Star, label: 'Avaliações' },
@@ -39,6 +50,34 @@ export function ProfileSection({ user, className }: ProfileSectionProps) {
     { icon: Bell, label: 'Notificações' },
     { icon: Settings, label: 'Configurações' },
   ];
+  
+  const salonMenuItems = [
+    { icon: User, label: 'Dados do salão' },
+    { icon: Calendar, label: 'Agenda' },
+    { icon: Users, label: 'Funcionários' },
+    { icon: Scissors, label: 'Serviços' },
+    { icon: BarChart, label: 'Relatórios' },
+    { icon: Bell, label: 'Notificações' },
+    { icon: Settings, label: 'Configurações' },
+  ];
+
+  const menuItems = isSalon ? salonMenuItems : clientMenuItems;
+
+  const handleLogout = () => {
+    toast({
+      title: "Sessão encerrada",
+      description: "Você saiu da sua conta com sucesso."
+    });
+    logout();
+    navigate('/');
+  };
+
+  const handleMenuItemClick = (label: string) => {
+    toast({
+      title: "Funcionalidade selecionada",
+      description: `Você selecionou: ${label}`
+    });
+  };
 
   return (
     <motion.div
@@ -58,18 +97,44 @@ export function ProfileSection({ user, className }: ProfileSectionProps) {
                 {user.name.charAt(0)}
               </AvatarFallback>
             </Avatar>
-            <Button size="sm" variant="secondary" className="mt-14 button-press">
+            <Button 
+              size="sm" 
+              variant="secondary" 
+              className="mt-14 button-press"
+              onClick={() => {
+                toast({
+                  title: "Alterar foto",
+                  description: "Esta funcionalidade estará disponível em breve."
+                });
+              }}
+            >
               <Camera className="h-4 w-4 mr-2" /> Alterar foto
             </Button>
           </div>
           <div className="mt-3">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold">{user.name}</h2>
-              <Button variant="ghost" size="icon" className="button-press">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="button-press"
+                onClick={() => {
+                  setIsEditing(!isEditing);
+                  toast({
+                    title: isEditing ? "Modo de edição desativado" : "Modo de edição ativado",
+                    description: isEditing 
+                      ? "Suas alterações foram salvas" 
+                      : "Agora você pode editar seu perfil"
+                  });
+                }}
+              >
                 <Edit2 className="h-4 w-4" />
               </Button>
             </div>
             <p className="text-sm text-muted-foreground">{user.email}</p>
+            <p className="text-xs px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full inline-block mt-2">
+              {isSalon ? 'Salão de Beleza' : 'Cliente'}
+            </p>
           </div>
         </CardHeader>
         <CardContent className="pt-6">
@@ -79,12 +144,17 @@ export function ProfileSection({ user, className }: ProfileSectionProps) {
                 key={item.label}
                 variant="ghost"
                 className="justify-start h-12 px-3 button-press"
+                onClick={() => handleMenuItemClick(item.label)}
               >
                 <item.icon className="mr-3 h-5 w-5 text-muted-foreground" />
                 <span>{item.label}</span>
               </Button>
             ))}
-            <Button variant="ghost" className="justify-start h-12 px-3 text-red-600 hover:text-red-700 hover:bg-red-50 button-press">
+            <Button 
+              variant="ghost" 
+              className="justify-start h-12 px-3 text-red-600 hover:text-red-700 hover:bg-red-50 button-press"
+              onClick={handleLogout}
+            >
               <LogOut className="mr-3 h-5 w-5" />
               <span>Sair</span>
             </Button>
