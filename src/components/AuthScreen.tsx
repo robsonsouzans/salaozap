@@ -12,11 +12,33 @@ import {
   ArrowRight,
   MessageSquare,
   Building,
-  UserCheck
+  UserCheck,
+  HelpCircle,
+  LogIn
 } from 'lucide-react';
 import { AnimatedLogo } from './ui/AnimatedLogo';
 import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
+
+// Demo user data
+const DEMO_USERS = {
+  client: {
+    email: 'demo@example.com',
+    password: 'demo',
+    name: 'Maria Silva',
+    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80',
+    role: 'client' as UserRole,
+    id: 'demo123'
+  },
+  salon: {
+    email: 'salao@example.com',
+    password: 'salao',
+    name: 'Salão Beleza Natural',
+    avatar: 'https://images.unsplash.com/photo-1600948836101-f9ffda59d250?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80',
+    role: 'salon' as UserRole,
+    id: 'salon123'
+  }
+};
 
 export function AuthScreen() {
   const [activeTab, setActiveTab] = useState('login');
@@ -45,7 +67,28 @@ export function AuthScreen() {
       return;
     }
     
-    // For demo purposes - simulate login
+    // Check for demo users first
+    let demoUser = null;
+    if (userType === 'client' && 
+        loginEmail === DEMO_USERS.client.email && 
+        loginPassword === DEMO_USERS.client.password) {
+      demoUser = DEMO_USERS.client;
+    } else if (userType === 'salon' && 
+               loginEmail === DEMO_USERS.salon.email && 
+               loginPassword === DEMO_USERS.salon.password) {
+      demoUser = DEMO_USERS.salon;
+    }
+    
+    if (demoUser) {
+      login(demoUser);
+      toast({
+        title: "Login realizado",
+        description: `Bem-vindo, ${demoUser.name}!`,
+      });
+      return;
+    }
+    
+    // For other users - simulate login
     // In a real app, this would call an API
     const mockUser = {
       id: '1',
@@ -96,6 +139,16 @@ export function AuthScreen() {
     });
   };
 
+  const loginWithDemo = (type: 'client' | 'salon') => {
+    const demoUser = type === 'client' ? DEMO_USERS.client : DEMO_USERS.salon;
+    setUserType(type);
+    login(demoUser);
+    toast({
+      title: "Login de demonstração",
+      description: `Bem-vindo, ${demoUser.name}!`,
+    });
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 bg-background">
       <motion.div
@@ -116,7 +169,7 @@ export function AuthScreen() {
           </p>
         </div>
 
-        <div className="bg-white/50 backdrop-blur-sm p-6 rounded-xl border border-gray-100 shadow-sm mb-6">
+        <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm mb-6">
           <div className="flex justify-center space-x-4 mb-6">
             <Button 
               variant={userType === 'client' ? "default" : "outline"} 
@@ -181,13 +234,32 @@ export function AuthScreen() {
               </form>
               
               <div className="relative flex items-center justify-center mt-6 mb-6">
-                <div className="border-t border-gray-300 absolute w-full"></div>
+                <div className="border-t border-gray-300 dark:border-gray-600 absolute w-full"></div>
                 <span className="bg-background px-2 text-sm text-muted-foreground relative">
                   ou continue com
                 </span>
               </div>
               
               <div className="grid grid-cols-2 gap-3">
+                <Button 
+                  variant="outline" 
+                  className="button-press gap-2"
+                  onClick={() => loginWithDemo('client')}
+                >
+                  <LogIn className="w-4 h-4" />
+                  Demo Cliente
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="button-press gap-2"
+                  onClick={() => loginWithDemo('salon')}
+                >
+                  <LogIn className="w-4 h-4" />
+                  Demo Salão
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3 mt-2">
                 <Button variant="outline" className="button-press">
                   <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                     <path
@@ -266,7 +338,7 @@ export function AuthScreen() {
               </form>
               
               <div className="relative flex items-center justify-center mt-6 mb-6">
-                <div className="border-t border-gray-300 absolute w-full"></div>
+                <div className="border-t border-gray-300 dark:border-gray-600 absolute w-full"></div>
                 <span className="bg-background px-2 text-sm text-muted-foreground relative">
                   ou continue com
                 </span>

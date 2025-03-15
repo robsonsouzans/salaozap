@@ -9,6 +9,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 const Profile = () => {
+  const { theme } = useAuth();
+  
   return (
     <ProtectedRoute>
       <MainLayout>
@@ -19,7 +21,7 @@ const Profile = () => {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
             </Link>
-            <h1 className="text-2xl font-semibold">Perfil</h1>
+            <h1 className="text-2xl font-semibold dark:text-gray-100">Perfil</h1>
           </div>
         </div>
 
