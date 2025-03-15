@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { ArrowRight, Clock, DollarSign } from 'lucide-react';
+import { ArrowRight, Clock, DollarSign, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -22,6 +22,7 @@ interface Service {
   price: number;
   duration: string;
   image: string;
+  category?: string;
 }
 
 interface ServicesListProps {
@@ -92,6 +93,12 @@ export function ServicesList({ services, className }: ServicesListProps) {
                   <span>R$ {service.price.toFixed(2)}</span>
                 </div>
               </div>
+              {service.category && (
+                <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
+                  <Tag className="h-3 w-3" />
+                  <span>{service.category}</span>
+                </div>
+              )}
             </CardContent>
             <CardFooter>
               <Button 
