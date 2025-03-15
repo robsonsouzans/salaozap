@@ -4,7 +4,7 @@ import { AnimatedLogo } from './ui/AnimatedLogo';
 import { motion } from 'framer-motion';
 
 interface SplashScreenProps {
-  onFinished: () => void;
+  onFinished?: () => void;
 }
 
 export function SplashScreen({ onFinished }: SplashScreenProps) {
@@ -13,7 +13,9 @@ export function SplashScreen({ onFinished }: SplashScreenProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsAnimating(false);
-      setTimeout(onFinished, 500); // Wait for exit animation
+      if (onFinished) {
+        setTimeout(onFinished, 500); // Wait for exit animation
+      }
     }, 2000);
 
     return () => clearTimeout(timer);
