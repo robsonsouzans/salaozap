@@ -141,7 +141,7 @@ export function ProfileSection({ className }: ProfileSectionProps) {
             {isEditing ? (
               <Button 
                 size="sm" 
-                variant="primary" 
+                variant="default" 
                 className="mt-14 button-press"
                 onClick={saveProfile}
               >
