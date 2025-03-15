@@ -12,6 +12,8 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { ArrowRight, Clock, DollarSign } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 interface Service {
   id: string;
@@ -28,6 +30,9 @@ interface ServicesListProps {
 }
 
 export function ServicesList({ services, className }: ServicesListProps) {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -41,6 +46,21 @@ export function ServicesList({ services, className }: ServicesListProps) {
   const item = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0 }
+  };
+
+  const handleSchedule = (service: Service) => {
+    // Store selected service in localStorage for the appointments page
+    localStorage.setItem('selectedService', JSON.stringify(service));
+    
+    // Show confirmation toast
+    toast({
+      title: "Serviço selecionado",
+      description: `Você selecionou ${service.name}. Continue para agendar.`,
+      duration: 3000,
+    });
+    
+    // Navigate to appointments page
+    navigate('/appointments');
   };
 
   return (
@@ -74,7 +94,10 @@ export function ServicesList({ services, className }: ServicesListProps) {
               </div>
             </CardContent>
             <CardFooter>
-              <Button className="w-full button-press">
+              <Button 
+                className="w-full button-press"
+                onClick={() => handleSchedule(service)}
+              >
                 Agendar <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             </CardFooter>
