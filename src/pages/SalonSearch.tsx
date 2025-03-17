@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/layouts/MainLayout';
 import { 
   Card, 
@@ -15,9 +15,47 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/components/ui/use-toast';
-import { ArrowLeft, Search, MapPin, Star, Clock, Phone, Calendar, Filter, Scissors, Heart } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Search, 
+  MapPin, 
+  Star, 
+  Clock, 
+  Phone, 
+  Calendar, 
+  Filter, 
+  Scissors, 
+  Heart,
+  X,
+  Sliders,
+  Check
+} from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useForm } from "react-hook-form";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // Mock data for salons
 const salonsData = [
@@ -74,6 +112,25 @@ const salonsData = [
     openNow: true
   }
 ];
+
+const services = [
+  { id: 'haircut', label: 'Corte de Cabelo' },
+  { id: 'coloring', label: 'Coloração' },
+  { id: 'manicure', label: 'Manicure' },
+  { id: 'pedicure', label: 'Pedicure' },
+  { id: 'barber', label: 'Barbearia' },
+  { id: 'makeup', label: 'Maquiagem' },
+  { id: 'facial', label: 'Limpeza de Pele' },
+  { id: 'massage', label: 'Massagem' },
+];
+
+interface FilterValues {
+  services: string[];
+  priceRange: [number, number];
+  rating: number;
+  distance: number;
+  openNow: boolean;
+}
 
 const SalonCard = ({ salon }: { salon: typeof salonsData[0] }) => {
   const navigate = useNavigate();
@@ -181,7 +238,21 @@ const SalonCard = ({ salon }: { salon: typeof salonsData[0] }) => {
 const SalonSearch = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredSalons, setFilteredSalons] = useState(salonsData);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  
+  const form = useForm<FilterValues>({
+    defaultValues: {
+      services: [],
+      priceRange: [0, 300],
+      rating: 0,
+      distance: 10,
+      openNow: false
+    }
+  });
   
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -199,6 +270,78 @@ const SalonSearch = () => {
     }
   };
   
+  const applyFilters = (values: FilterValues) => {
+    let filtered = [...salonsData];
+    const newActiveFilters: string[] = [];
+    
+    // Filter by services
+    if (values.services.length > 0) {
+      filtered = filtered.filter(salon => 
+        salon.services.some(service => 
+          values.services.some(s => service.toLowerCase().includes(s.toLowerCase()))
+        )
+      );
+      newActiveFilters.push(`${values.services.length} serviços`);
+    }
+    
+    // Filter by rating
+    if (values.rating > 0) {
+      filtered = filtered.filter(salon => salon.rating >= values.rating);
+      newActiveFilters.push(`${values.rating}+ estrelas`);
+    }
+    
+    // Filter by distance
+    if (values.distance < 10) {
+      filtered = filtered.filter(salon => 
+        parseFloat(salon.distance.replace(' km', '')) <= values.distance
+      );
+      newActiveFilters.push(`${values.distance}km ou menos`);
+    }
+    
+    // Filter by open now
+    if (values.openNow) {
+      filtered = filtered.filter(salon => salon.openNow);
+      newActiveFilters.push('Aberto agora');
+    }
+    
+    setFilteredSalons(filtered);
+    setActiveFilters(newActiveFilters);
+    setDrawerOpen(false);
+    
+    toast({
+      title: "Filtros aplicados",
+      description: `${filtered.length} salões encontrados`
+    });
+  };
+  
+  const removeFilter = (filter: string) => {
+    setActiveFilters(prev => prev.filter(f => f !== filter));
+    
+    if (filter.includes('serviços')) {
+      form.setValue('services', []);
+    } else if (filter.includes('estrelas')) {
+      form.setValue('rating', 0);
+    } else if (filter.includes('km')) {
+      form.setValue('distance', 10);
+    } else if (filter === 'Aberto agora') {
+      form.setValue('openNow', false);
+    }
+    
+    // Re-apply filters
+    applyFilters(form.getValues());
+  };
+  
+  const resetFilters = () => {
+    form.reset();
+    setFilteredSalons(salonsData);
+    setActiveFilters([]);
+    
+    toast({
+      title: "Filtros limpos",
+      description: "Todos os filtros foram removidos"
+    });
+  };
+  
   const handleFilter = (filter: string) => {
     let filtered;
     
@@ -207,7 +350,7 @@ const SalonSearch = () => {
         filtered = salonsData;
         break;
       case 'nearby':
-        filtered = salonsData.sort((a, b) => 
+        filtered = [...salonsData].sort((a, b) => 
           parseFloat(a.distance.replace(' km', '')) - parseFloat(b.distance.replace(' km', ''))
         );
         break;
@@ -246,9 +389,160 @@ const SalonSearch = () => {
           <h1 className="text-2xl font-semibold">Buscar Salões</h1>
         </div>
         
-        <Button variant="outline" size="icon" className="button-press">
-          <Filter className="h-5 w-5" />
-        </Button>
+        <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+          <DrawerTrigger asChild>
+            <Button variant="outline" size="icon" className="button-press">
+              <Sliders className="h-5 w-5" />
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent className={isMobile ? "h-[80vh]" : "max-h-[90vh]"}>
+            <DrawerHeader>
+              <DrawerTitle>Filtros Avançados</DrawerTitle>
+              <DrawerDescription>
+                Encontre o salão perfeito para você
+              </DrawerDescription>
+            </DrawerHeader>
+            <div className="px-4 py-2 overflow-y-auto">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(applyFilters)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="services"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-semibold">Serviços</FormLabel>
+                        <FormDescription>
+                          Selecione os serviços que você está procurando
+                        </FormDescription>
+                        <div className="grid grid-cols-2 gap-3 mt-2">
+                          {services.map(service => (
+                            <div key={service.id} className="flex items-center space-x-2">
+                              <Checkbox 
+                                id={`service-${service.id}`} 
+                                checked={field.value.includes(service.id)}
+                                onCheckedChange={(checked) => {
+                                  const newValue = checked 
+                                    ? [...field.value, service.id]
+                                    : field.value.filter(val => val !== service.id);
+                                  field.onChange(newValue);
+                                }}
+                              />
+                              <label 
+                                htmlFor={`service-${service.id}`}
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                              >
+                                {service.label}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="rating"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-semibold">Avaliação</FormLabel>
+                        <FormDescription>
+                          Escolha a avaliação mínima
+                        </FormDescription>
+                        <div className="flex items-center space-x-2 pt-2">
+                          {[1, 2, 3, 4, 5].map(rating => (
+                            <Button 
+                              key={rating}
+                              type="button"
+                              variant={field.value >= rating ? "default" : "outline"}
+                              size="sm"
+                              className={`rounded-full w-10 h-10 p-0 flex items-center justify-center ${
+                                field.value >= rating ? "bg-yellow-500 hover:bg-yellow-600 border-none" : ""
+                              }`}
+                              onClick={() => field.onChange(rating === field.value ? 0 : rating)}
+                            >
+                              <Star className={`h-5 w-5 ${
+                                field.value >= rating ? "fill-white text-white" : "text-muted-foreground"
+                              }`} />
+                            </Button>
+                          ))}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="distance"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-semibold">Distância</FormLabel>
+                        <FormDescription>
+                          Até {field.value} km de distância
+                        </FormDescription>
+                        <FormControl>
+                          <Slider
+                            value={[field.value]}
+                            min={1}
+                            max={10}
+                            step={1}
+                            onValueChange={(vals) => field.onChange(vals[0])}
+                            className="mt-2"
+                          />
+                        </FormControl>
+                        <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                          <span>1 km</span>
+                          <span>5 km</span>
+                          <span>10 km</span>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="openNow"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between space-x-2 space-y-0 rounded-md border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Aberto agora</FormLabel>
+                          <FormDescription>
+                            Mostrar apenas salões abertos no momento
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </form>
+              </Form>
+            </div>
+            <DrawerFooter>
+              <div className="flex space-x-2">
+                <Button variant="outline" onClick={resetFilters} className="flex-1">
+                  Limpar
+                </Button>
+                <Button 
+                  onClick={() => applyFilters(form.getValues())} 
+                  className="flex-1"
+                >
+                  Aplicar Filtros
+                </Button>
+              </div>
+              <DrawerClose asChild>
+                <Button variant="ghost">Cancelar</Button>
+              </DrawerClose>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
       </div>
       
       {/* Search bar */}
@@ -262,6 +556,30 @@ const SalonSearch = () => {
           onChange={handleSearch}
         />
       </div>
+      
+      {/* Active filters */}
+      {activeFilters.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {activeFilters.map(filter => (
+            <Badge 
+              key={filter} 
+              variant="secondary"
+              className="px-3 py-1 cursor-pointer flex items-center"
+              onClick={() => removeFilter(filter)}
+            >
+              {filter}
+              <X className="ml-1 h-3 w-3" />
+            </Badge>
+          ))}
+          <Badge 
+            variant="outline" 
+            className="px-3 py-1 cursor-pointer"
+            onClick={resetFilters}
+          >
+            Limpar todos
+          </Badge>
+        </div>
+      )}
       
       {/* Filter tabs */}
       <Tabs defaultValue="all" className="mb-6">
@@ -306,7 +624,7 @@ const SalonSearch = () => {
           <Button 
             onClick={() => {
               setSearchTerm('');
-              setFilteredSalons(salonsData);
+              resetFilters();
             }}
             className="button-press"
           >
