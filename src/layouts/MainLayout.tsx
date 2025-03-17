@@ -2,8 +2,10 @@
 import React, { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { NavBar } from '@/components/NavBar';
+import { WebLayout } from '@/layouts/WebLayout';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -19,7 +21,14 @@ export function MainLayout({
   hideNavBar = false
 }: MainLayoutProps) {
   const { isAuthenticated } = useAuth();
+  const isMobile = useIsMobile();
   
+  // Use WebLayout for non-mobile devices when authenticated
+  if (!isMobile && isAuthenticated) {
+    return <WebLayout className={className}>{children}</WebLayout>;
+  }
+  
+  // Use the original mobile layout for mobile devices
   return (
     <div className="min-h-screen bg-background">
       <motion.main
