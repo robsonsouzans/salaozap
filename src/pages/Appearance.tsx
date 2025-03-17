@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MainLayout } from '@/layouts/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Save, Sun, Moon, Laptop } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth, ThemePreference } from '@/contexts/AuthContext';
 
 const Appearance = () => {
   const { toast } = useToast();
@@ -55,10 +54,11 @@ const Appearance = () => {
               defaultValue={theme} 
               className="grid grid-cols-3 gap-4 pt-2"
               onValueChange={(value) => {
-                setTheme(value);
+                const themeValue = value as ThemePreference;
+                setTheme(themeValue);
                 toast({
-                  title: `Tema ${value === 'light' ? 'Claro' : value === 'dark' ? 'Escuro' : 'Sistema'} ativado`,
-                  description: `O tema do aplicativo foi alterado para ${value === 'light' ? 'claro' : value === 'dark' ? 'escuro' : 'seguir configuração do sistema'}.`
+                  title: `Tema ${themeValue === 'light' ? 'Claro' : 'Escuro'} ativado`,
+                  description: `O tema do aplicativo foi alterado para ${themeValue === 'light' ? 'claro' : 'escuro'}.`
                 });
               }}
             >
