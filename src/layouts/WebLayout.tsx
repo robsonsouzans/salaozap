@@ -1,7 +1,7 @@
 
 import React, { ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
+import { SidebarProvider, SidebarTrigger, SidebarInset, SidebarRail } from '@/components/ui/sidebar';
 import { WebSidebar } from '@/components/WebSidebar';
 import { cn } from '@/lib/utils';
 
@@ -15,6 +15,7 @@ export function WebLayout({ children, className }: WebLayoutProps) {
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
         <WebSidebar />
+        <SidebarRail />
         <SidebarInset className={cn(className)}>
           <div className="px-6 py-6 flex items-center border-b">
             <SidebarTrigger className="mr-4" />

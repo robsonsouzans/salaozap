@@ -59,8 +59,8 @@ export function ProfileSection({ className }: ProfileSectionProps) {
     { icon: Bookmark, label: 'Meus agendamentos', action: () => navigate('/appointments') },
     { icon: Star, label: 'Avaliações', action: () => handleMenuItemClick('Avaliações') },
     { icon: CreditCard, label: 'Métodos de pagamento', action: () => handleMenuItemClick('Métodos de pagamento') },
-    { icon: Bell, label: 'Notificações', action: () => handleMenuItemClick('Notificações') },
-    { icon: Settings, label: 'Configurações', action: () => handleMenuItemClick('Configurações') },
+    { icon: Bell, label: 'Notificações', action: () => navigate('/settings/notifications') },
+    { icon: Settings, label: 'Configurações', action: () => navigate('/settings') },
   ];
   
   const salonMenuItems = [
@@ -69,8 +69,8 @@ export function ProfileSection({ className }: ProfileSectionProps) {
     { icon: Users, label: 'Funcionários', action: () => navigate('/team') },
     { icon: Scissors, label: 'Serviços', action: () => navigate('/salon/services') },
     { icon: BarChart, label: 'Relatórios', action: () => handleMenuItemClick('Relatórios') },
-    { icon: Bell, label: 'Notificações', action: () => handleMenuItemClick('Notificações') },
-    { icon: Settings, label: 'Configurações', action: () => handleMenuItemClick('Configurações') },
+    { icon: Bell, label: 'Notificações', action: () => navigate('/settings/notifications') },
+    { icon: Settings, label: 'Configurações', action: () => navigate('/settings') },
   ];
 
   const menuItems = isSalon ? salonMenuItems : clientMenuItems;

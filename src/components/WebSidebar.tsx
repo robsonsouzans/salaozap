@@ -14,6 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  useSidebar
 } from '@/components/ui/sidebar';
 import {
   Home,
@@ -31,8 +32,10 @@ export function WebSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { state } = useSidebar();
   
   const isSalon = user?.role === 'salon';
+  const isCollapsed = state === 'collapsed';
   
   const clientNavItems = [
     { title: 'Início', icon: Home, path: '/' },
@@ -63,7 +66,11 @@ export function WebSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="flex justify-center py-4">
-        <h1 className="text-xl font-bold text-indigo-600">SalãoZap</h1>
+        {!isCollapsed ? (
+          <h1 className="text-xl font-bold text-indigo-600">SalãoZap</h1>
+        ) : (
+          <h1 className="text-xl font-bold text-indigo-600">SZ</h1>
+        )}
       </SidebarHeader>
       
       <SidebarContent>
