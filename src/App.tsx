@@ -15,6 +15,13 @@ import Profile from "./pages/Profile";
 import SalonServices from "./pages/SalonServices";
 import TeamMembers from "./pages/TeamMembers";
 import Unauthorized from "./pages/Unauthorized";
+import SalonSearch from "./pages/SalonSearch";
+import Settings from "./pages/Settings";
+import BusinessHours from "./pages/BusinessHours";
+import PaymentMethods from "./pages/PaymentMethods";
+import Notifications from "./pages/Notifications";
+import Security from "./pages/Security";
+import Appearance from "./pages/Appearance";
 
 // Create a QueryClient
 const queryClient = new QueryClient();
@@ -35,8 +42,14 @@ const App = () => (
               <Route path="/profile" element={<Profile />} />
               <Route path="/salon/services" element={<SalonServices />} />
               <Route path="/team" element={<TeamMembers />} />
+              <Route path="/search" element={<SalonSearch />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/settings/business-hours" element={<BusinessHours />} />
+              <Route path="/settings/payment-methods" element={<PaymentMethods />} />
+              <Route path="/settings/notifications" element={<Notifications />} />
+              <Route path="/settings/security" element={<Security />} />
+              <Route path="/settings/appearance" element={<Appearance />} />
               <Route path="/unauthorized" element={<Unauthorized />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AnimatePresence>
