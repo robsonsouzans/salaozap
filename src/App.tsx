@@ -38,11 +38,11 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/services" element={<Services />} />
               <Route path="/explore" element={<Explore />} />
+              <Route path="/search" element={<SalonSearch />} />
               <Route path="/appointments" element={<Appointments />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/salon/services" element={<SalonServices />} />
               <Route path="/team" element={<TeamMembers />} />
-              <Route path="/search" element={<SalonSearch />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/settings/business-hours" element={<BusinessHours />} />
               <Route path="/settings/payment-methods" element={<PaymentMethods />} />

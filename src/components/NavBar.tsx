@@ -23,7 +23,7 @@ export function NavBar() {
   
   const clientNavItems = [
     { icon: Home, label: 'Início', path: '/' },
-    { icon: Search, label: 'Explorar', path: '/explore' },
+    { icon: Search, label: 'Explorar', path: '/search' },
     { icon: PlusCircle, label: 'Agendar', path: '/services' },
     { icon: Calendar, label: 'Agenda', path: '/appointments' },
     { icon: User, label: 'Perfil', path: '/profile' }
@@ -32,7 +32,7 @@ export function NavBar() {
   const salonNavItems = [
     { icon: Home, label: 'Início', path: '/' },
     { icon: Calendar, label: 'Agenda', path: '/appointments' },
-    { icon: Scissors, label: 'Serviços', path: '/services' },
+    { icon: Scissors, label: 'Serviços', path: '/salon/services' },
     { icon: Users, label: 'Equipe', path: '/team' },
     { icon: User, label: 'Perfil', path: '/profile' }
   ];
